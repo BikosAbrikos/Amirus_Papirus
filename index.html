@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat-container {
+            background: linear-gradient(135deg, #1e1e1e, #34495e);
+            border-radius: 10px;
+            padding: 20px;
+            width: 1000px;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        #chatbox {
+            flex-grow: 1;
+            border: 1px solid #444;
+            border-radius: 5px;
+            overflow-y: scroll;
+            padding: 10px;
+            background-color: #282828;
+            color: #ffffff;
+            scrollbar-width: thin;
+            scrollbar-color: #444 #1e1e1e;
+        }
+        #chatbox::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chatbox::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        #chatbox::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 10px;
+        }
+        #user_input {
+            width: calc(100% - 70px);
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #2c2c2c;
+            color: #ffffff;
+        }
+        #send_btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #send_btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1 style="text-align: center;">Chat with AI</h1>
+        <div id="chatbox"></div>
+        <div style="display: flex; margin-top: 10px;">
+            <input type="text" id="user_input" placeholder="Введите ваше сообщение..." />
+            <button id="send_btn">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('user_input');
+        const sendBtn = document.getElementById('send_btn');
+
+        sendBtn.onclick = function() {
+            const message = userInput.value;
+            if (message) {
+                chatbox.innerHTML += `<div>Вы: ${message}</div>`;
+                userInput.value = '';
+                
+                fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `message=${encodeURIComponent(message)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    chatbox.innerHTML += `<div>ИИ: ${data.response}</div>`;
+                    chatbox.scrollTop = chatbox.scrollHeight; // Прокручиваем вниз
+                });
+            }
+        };
+
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
